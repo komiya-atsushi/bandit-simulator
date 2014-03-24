@@ -97,7 +97,9 @@
                     ],
                     returnObj.simulator.numIteration)
                     .epsilonGreedy(returnObj.algorithms.epsilonGreedy.epsilon)
+                    .epsilonGreedyWithAnneal()
                     .softmax(returnObj.algorithms.softmax.temperature)
+                    .softmaxWithAnneal()
                     .ucb1()
                     .thompsonSampling()
                     .simulate(function (result) {

@@ -4,7 +4,7 @@ var newSimulator = function (numArms, probabilities, numIteration) {
 
     var _i;
     for (_i = 0; _i < numArms; _i++) {
-        arms.push(bandit.bernoulliArm(probabilities[_i]));
+        arms.push(bandit.bernoulliArm(numIteration, probabilities[_i]));
     }
 
     return {
@@ -17,11 +17,27 @@ var newSimulator = function (numArms, probabilities, numIteration) {
             return this;
         },
 
+        epsilonGreedyWithAnneal: function () {
+            algorithms.push(bandit.algorithm({
+                algorithm: "epsilon-greedy-with-anneal",
+                numArms: numArms
+            }));
+            return this;
+        },
+
         softmax: function (temperature) {
             algorithms.push(bandit.algorithm({
                 algorithm: "softmax",
                 numArms: numArms,
                 temperature: temperature
+            }));
+            return this;
+        },
+
+        softmaxWithAnneal: function () {
+            algorithms.push(bandit.algorithm({
+                algorithm: "softmax-with-anneal",
+                numArms: numArms
             }));
             return this;
         },
@@ -49,6 +65,7 @@ var newSimulator = function (numArms, probabilities, numIteration) {
                 cumulativeReward: [],
                 averageReward: []
             };
+
             var i;
             for (i = 0; i < algorithms.length; i++) {
                 rewardsResult.cumulativeReward.push({
@@ -68,7 +85,7 @@ var newSimulator = function (numArms, probabilities, numIteration) {
                     algorithm = algorithms[j];
                     arm = algorithm.selectArm();
 
-                    reward = arms[arm].draw() ? 1 : 0;
+                    reward = arms[arm].draw(i) ? 1 : 0;
                     algorithm.update(arm, reward);
 
                     rewardsResult.cumulativeReward[j].values[i] = [
