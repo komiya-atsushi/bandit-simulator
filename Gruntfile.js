@@ -159,6 +159,19 @@ module.exports = function (grunt) {
             }
         },
 
+        bower: {
+            install: {
+                options: {
+                    targetDir: '<%= config.app %>/vendor',
+                    layout: 'byComponent',
+                    install: true,
+                    verbose: false,
+                    cleanTargetDir: false,
+                    cleanBowerDir: false
+                }
+            }
+        },
+
         // Renames files for browser caching purposes
         rev: {
             dist: {
@@ -276,8 +289,8 @@ module.exports = function (grunt) {
                         '.htaccess',
                         'images/{,*/}*.webp',
                         '{,*/}*.html',
-                        'styles/fonts/{,*/}*.*',
-                        'bower_components/bootstrap/dist/fonts/*.*'
+                        'scripts/*.js',
+                        'styles/*.css'
                     ]
                 }]
             },
@@ -343,12 +356,13 @@ module.exports = function (grunt) {
 
     grunt.registerTask('build', [
         'clean:dist',
+        'bower:install',
         'useminPrepare',
         'concurrent:dist',
         'autoprefixer',
-        'concat',
-        'cssmin',
-        'uglify',
+//        'concat',
+//        'cssmin',
+//        'uglify',
         'copy:dist',
         'rev',
         'usemin',
