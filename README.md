@@ -23,3 +23,6 @@ Supported algorithms
 License
 -------
 
+Copyright (c) 2014 KOMIYA Atsushi
+
+See the file LICENSE.txt for more details.
