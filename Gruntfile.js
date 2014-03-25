@@ -290,7 +290,8 @@ module.exports = function (grunt) {
                         'images/{,*/}*.webp',
                         '{,*/}*.html',
                         'scripts/*.js',
-                        'styles/*.css'
+                        'styles/*.css',
+                        'vendor/**/*.{js,css}'
                     ]
                 }]
             },
