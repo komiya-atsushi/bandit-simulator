@@ -21,16 +21,20 @@
                 <h3>Simulation result</h3>
 
                 <div>
-                    <input type="radio" name="selectedChart" id="cumulativeRewardButton"
-                           ng-model="model.result.selectedChart"
-                           value="cumulativeReward"
-                           checked/>
-                    <label for="cumulativeRewardButton">Cumulative reward</label>
+                    <span>
+                        <input type="radio" name="selectedChart" id="cumulativeRewardButton"
+                               ng-model="model.result.selectedChart"
+                               value="cumulativeReward"
+                               checked/>&nbsp;
+                        <label for="cumulativeRewardButton">Cumulative reward</label>
+                    </span>
 
-                    <input type="radio" name="selectedChart" id="averageRewardButton"
-                           ng-model="model.result.selectedChart"
-                           value="averageReward">
-                    <label for="averageRewardButton">Average reward</label>
+                    <span>
+                        <input type="radio" name="selectedChart" id="averageRewardButton"
+                               ng-model="model.result.selectedChart"
+                               value="averageReward">&nbsp;
+                        <label for="averageRewardButton">Average reward</label>
+                    </span>
                 </div>
 
                 <div id="cumulativeReward" class="chart-area"
