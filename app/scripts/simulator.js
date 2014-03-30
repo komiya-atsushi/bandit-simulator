@@ -1,105 +1,159 @@
-var newSimulator = function (numArms, probabilities, numIteration) {
-    var algorithms = [];
-    var arms = [];
+(function () {
+    var simulator = angular.module("demo.simulator", []);
+    simulator.factory("newSimulator", function ($timeout) {
+        return function (numArms, probabilities, numIterations) {
+            var algorithms = [];
+            var arms = [];
 
-    var _i;
-    for (_i = 0; _i < numArms; _i++) {
-        arms.push(bandit.bernoulliArm(numIteration, probabilities[_i]));
-    }
-
-    return {
-        epsilonGreedy: function (epsilon) {
-            algorithms.push(bandit.algorithm({
-                algorithm: "epsilon-greedy",
-                numArms: numArms,
-                epsilon: epsilon
-            }));
-            return this;
-        },
-
-        epsilonGreedyWithAnneal: function () {
-            algorithms.push(bandit.algorithm({
-                algorithm: "epsilon-greedy-with-anneal",
-                numArms: numArms
-            }));
-            return this;
-        },
-
-        softmax: function (temperature) {
-            algorithms.push(bandit.algorithm({
-                algorithm: "softmax",
-                numArms: numArms,
-                temperature: temperature
-            }));
-            return this;
-        },
-
-        softmaxWithAnneal: function () {
-            algorithms.push(bandit.algorithm({
-                algorithm: "softmax-with-anneal",
-                numArms: numArms
-            }));
-            return this;
-        },
-
-        ucb1: function () {
-            algorithms.push(bandit.algorithm({
-                algorithm: "ucb1",
-                numArms: numArms
-            }));
-            return this;
-        },
-
-        thompsonSampling: function () {
-            algorithms.push(bandit.algorithm({
-                algorithm: "thompson",
-                numArms: numArms
-            }));
-            return this;
-        },
-
-        simulate: function (callback) {
-            // TODO iteration 回数に従って、setTimeout しながらの処理としたい
-
-            var rewardsResult = {
-                cumulativeReward: [],
-                averageReward: []
-            };
-
-            var i;
-            for (i = 0; i < algorithms.length; i++) {
-                rewardsResult.cumulativeReward.push({
-                    key: algorithms[i].name,
-                    values: new Array(numIteration)
-                });
-
-                rewardsResult.averageReward.push({
-                    key: algorithms[i].name,
-                    values: new Array(numIteration)
-                });
+            var _i;
+            for (_i = 0; _i < numArms; _i++) {
+                arms.push(bandit.bernoulliArm(numIterations, probabilities[_i]));
             }
 
-            var j, algorithm, arm, reward;
-            for (i = 0; i < numIteration; i++) {
-                for (j = 0; j < algorithms.length; j++) {
-                    algorithm = algorithms[j];
-                    arm = algorithm.selectArm();
+            return {
+                epsilonGreedy: function (epsilon) {
+                    algorithms.push(bandit.algorithm({
+                        algorithm: "epsilon-greedy",
+                        numArms: numArms,
+                        epsilon: epsilon
+                    }));
+                    return this;
+                },
 
-                    reward = arms[arm].draw(i) ? 1 : 0;
-                    algorithm.update(arm, reward);
+                epsilonGreedyWithAnneal: function () {
+                    algorithms.push(bandit.algorithm({
+                        algorithm: "epsilon-greedy-with-anneal",
+                        numArms: numArms
+                    }));
+                    return this;
+                },
 
-                    rewardsResult.cumulativeReward[j].values[i] = [
-                        i + 1,
-                        algorithm.totalReward()
-                    ];
-                    rewardsResult.averageReward[j].values[i] = [
-                        i + 1,
-                        algorithm.totalReward() / (i + 1)
-                    ];
+                softmax: function (temperature) {
+                    algorithms.push(bandit.algorithm({
+                        algorithm: "softmax",
+                        numArms: numArms,
+                        temperature: temperature
+                    }));
+                    return this;
+                },
+
+                softmaxWithAnneal: function () {
+                    algorithms.push(bandit.algorithm({
+                        algorithm: "softmax-with-anneal",
+                        numArms: numArms
+                    }));
+                    return this;
+                },
+
+                ucb1: function () {
+                    algorithms.push(bandit.algorithm({
+                        algorithm: "ucb1",
+                        numArms: numArms
+                    }));
+                    return this;
+                },
+
+                thompsonSampling: function () {
+                    algorithms.push(bandit.algorithm({
+                        algorithm: "thompson",
+                        numArms: numArms
+                    }));
+                    return this;
+                },
+
+                simulate: function (callback) {
+                    var NUM_ITERATIONS_AT_A_TIMEOUT = 100;
+
+                    var iterationCount = 0;
+                    var nextLimit = NUM_ITERATIONS_AT_A_TIMEOUT;
+
+                    var simulationResult = newSimulationResult(numIterations);
+                    var _i;
+                    for (_i = 0; _i < algorithms.length; _i++) {
+                        simulationResult.setLabel(algorithms[_i].name);
+                    }
+
+                    var iterateWithTimeout = function () {
+                        var j, algorithm, arm, reward;
+
+                        for (nextLimit = Math.min(nextLimit, numIterations);
+                             iterationCount < nextLimit;
+                             iterationCount++) {
+
+                            for (j = 0; j < algorithms.length; j++) {
+                                algorithm = algorithms[j];
+                                arm = algorithm.selectArm();
+
+                                reward = arms[arm].draw(iterationCount) ? 1 : 0;
+                                algorithm.update(arm, reward);
+
+                                simulationResult.add(
+                                    algorithm.name,
+                                        iterationCount + 1,
+                                    algorithm.totalReward());
+                            }
+                        }
+
+                        if (iterationCount < numIterations) {
+                            nextLimit += NUM_ITERATIONS_AT_A_TIMEOUT;
+                            $timeout(iterateWithTimeout, 1, true);
+
+                        } else {
+                            callback(simulationResult.getResult());
+                        }
+                    };
+
+                    $timeout(iterateWithTimeout, 1, true);
                 }
-            }
+            };
+        };
+    });
 
-            callback(rewardsResult);
-        }
+    var newSimulationResult = function (numIterations) {
+        var MAX_SAMPLING_COUNT = 760;
+
+        var result = {
+            cumulativeReward: [],
+            averageReward: []
+        };
+
+        var indexOfLabel = {};
+
+        return {
+            setLabel: function (label) {
+                indexOfLabel[label] = result.cumulativeReward.length;
+                result.cumulativeReward.push({
+                    key: label,
+                    values: []
+                });
+                result.averageReward.push({
+                    key: label,
+                    values: []
+                });
+            },
+
+            add: function (label, iterationCount, totalReward) {
+                var algorithmIndex = indexOfLabel[label];
+                var sampleCount = result.cumulativeReward[algorithmIndex].values.length;
+                var nextSamplingPoint = (sampleCount + 1) / MAX_SAMPLING_COUNT;
+                var currentPoint = iterationCount / numIterations;
+
+                if (currentPoint >= nextSamplingPoint) {
+                    result.cumulativeReward[algorithmIndex].values.push([
+                        iterationCount,
+                        totalReward
+                    ]);
+                    result.averageReward[algorithmIndex].values.push([
+                        iterationCount,
+                        totalReward / (iterationCount)
+                    ]);
+                }
+            },
+
+            getResult: function () {
+                return result;
+            }
+        };
     };
-};
+})();
+

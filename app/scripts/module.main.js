@@ -1,5 +1,5 @@
 (function () {
-    var app = angular.module("demo.app", ["demo.model"]);
+    var app = angular.module("demo.app", ["demo.model", "demo.simulator"]);
     app.controller("demo.controller", function ($scope, model) {
         $scope.model = model;
 
@@ -61,7 +61,7 @@
     });
 
     var model = angular.module("demo.model", ["demo.renderer"]);
-    model.factory("model", function (renderer) {
+    model.factory("model", function (renderer, newSimulator) {
         var returnObj = {
             result: {
                 selectedChart: "cumulativeReward",
@@ -77,15 +77,15 @@
 
             simulator: {
                 arms: [
-                    { probability: 0.3 },
-                    { probability: 0.8 }
+                    { probability: 0.23 },
+                    { probability: 0.18 }
                 ],
                 numIteration: 1000
             },
 
             algorithms: {
                 epsilonGreedy: { epsilon: 0.5 },
-                softmax: { temperature: 10 }
+                softmax: { temperature: 0.1 }
             },
 
             simulate: function () {
