@@ -64,76 +64,78 @@
         };
     });
 
-    angular.module("demo.model", ["ui.bootstrap", "demo.renderer", "progress.model"]).factory("demoModel", function ($modal, renderer, newSimulator, progressModel) {
-        var returnObj = {
-            result: {
-                selectedChart: "cumulativeReward",
+    angular.module("demo.model", ["ui.bootstrap", "demo.renderer", "progress.model"])
+        .factory("demoModel", function ($modal, renderer, newSimulator, progressModel) {
+            var returnObj = {
+                result: {
+                    selectedChart: "cumulativeReward",
 
-                canShowCumulativeReward : function () {
-                    return "cumulativeReward" == returnObj.result.selectedChart;
+                    canShowCumulativeReward: function () {
+                        return "cumulativeReward" == returnObj.result.selectedChart;
+                    },
+
+                    canShowAverageReward: function () {
+                        return "averageReward" == returnObj.result.selectedChart;
+                    }
                 },
 
-                canShowAverageReward : function () {
-                    return "averageReward" == returnObj.result.selectedChart;
-                }
-            },
-
-            simulator: {
-                arms: [
-                    { probability: 0.23 },
-                    { probability: 0.18 }
-                ],
-                numIteration: 1000
-            },
-
-            algorithms: {
-                epsilonGreedy: { epsilon: 0.5 },
-                softmax: { temperature: 0.1 }
-            },
-
-            simulate: function () {
-                var modal = $modal.open({
-                    templateUrl: 'calculating.html',
-                    controller: 'progress.controller',
-                    backdrop: 'static',
-                    keyboard: false
-                });
-
-                newSimulator(
-                    2,
-                    [
-                        returnObj.simulator.arms[0].probability,
-                        returnObj.simulator.arms[1].probability
+                simulator: {
+                    arms: [
+                        { probability: 0.23 },
+                        { probability: 0.18 }
                     ],
-                    returnObj.simulator.numIteration)
-                    .epsilonGreedy(returnObj.algorithms.epsilonGreedy.epsilon)
-                    .epsilonGreedyWithAnneal()
-                    .softmax(returnObj.algorithms.softmax.temperature)
-                    .softmaxWithAnneal()
-                    .ucb1()
-                    .thompsonSampling()
-                    .simulate(function (value, totalValue) {
-                        progressModel.progress.value = value;
-                        progressModel.progress.totalValue = totalValue;
-                        progressModel.progress.percentage = 100 * value / totalValue;
+                    numIteration: 1000
+                },
 
-                    }, function (result) {
-                        modal.close();
-                        renderer.render(result, returnObj);
+                algorithms: {
+                    epsilonGreedy: { epsilon: 0.5 },
+                    softmax: { temperature: 0.1 }
+                },
+
+                simulate: function () {
+                    var modal = $modal.open({
+                        templateUrl: 'calculating.html',
+                        controller: 'progress.controller',
+                        backdrop: 'static',
+                        keyboard: false
                     });
-            }
-        };
 
-        return returnObj;
-    });
+                    newSimulator(
+                        2,
+                        [
+                            returnObj.simulator.arms[0].probability,
+                            returnObj.simulator.arms[1].probability
+                        ],
+                        returnObj.simulator.numIteration)
+                        .epsilonGreedy(returnObj.algorithms.epsilonGreedy.epsilon)
+                        .epsilonGreedyWithAnneal()
+                        .softmax(returnObj.algorithms.softmax.temperature)
+                        .softmaxWithAnneal()
+                        .ucb1()
+                        .thompsonSampling()
+                        .simulate(function (value, totalValue) {
+                            progressModel.progress.value = value;
+                            progressModel.progress.totalValue = totalValue;
+                            progressModel.progress.percentage = 100 * value / totalValue;
 
-    angular.module("progress.model", []).factory("progressModel", function () {
-        return {
-            progress: {
-                value: "-",
-                totalValue: "-",
-                percentage: 0
-            }
-        };
-    });
+                        }, function (result) {
+                            modal.close();
+                            renderer.render(result, returnObj);
+                        });
+                }
+            };
+
+            return returnObj;
+        });
+
+    angular.module("progress.model", [])
+        .factory("progressModel", function () {
+            return {
+                progress: {
+                    value: "-",
+                    totalValue: "-",
+                    percentage: 0
+                }
+            };
+        });
 })();
