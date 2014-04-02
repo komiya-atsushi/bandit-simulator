@@ -6,7 +6,8 @@
     "jquery": "~1.11.0",
     "d3": "~3.4.3",
     "angular": "~1.2.15",
-    "nvd3": "~1.1.15-beta"
+    "nvd3": "~1.1.15-beta",
+    "angular-bootstrap": "~0.10.0"
   },
   "devDependencies": {},
   "exportsOverride": {
@@ -25,6 +26,9 @@
     "nvd3": {
       "js": "**/nv.d3.min.js",
       "css": "**/nv.d3.min.css"
+    },
+    "angular-bootstrap": {
+      "js": "**/ui-bootstrap*.min.js"
     }
   }
 }

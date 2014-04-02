@@ -16,6 +16,21 @@
     </div>
 
     <div class="row" ng-controller="demo.controller">
+        <script type="text/ng-template" id="calculating.html">
+            <div class="modal-header">
+                Calculating...
+            </div>
+
+            <div class="modal-body">
+                <progressbar
+                        class="progress-striped active"
+                        value="model.progress.percentage"
+                        animate="false">
+                    {{ model.progress.value }} / {{ model.progress.totalValue }} ({{ model.progress.percentage }} %)
+                </progressbar>
+            </div>
+        </script>
+
         <form name="parameters">
             <div class="col-lg-9">
                 <h3>Simulation result</h3>
@@ -118,6 +133,8 @@
 
 <script src="vendor/jquery/js/jquery.min.js"></script>
 <script src="vendor/angular/js/angular.min.js"></script>
+<script src="vendor/angular-bootstrap/js/ui-bootstrap.min.js"></script>
+<script src="vendor/angular-bootstrap/js/ui-bootstrap-tpls.min.js"></script>
 <script src="vendor/d3/js/d3.min.js"></script>
 <script src="vendor/nvd3/js/nv.d3.min.js"></script>
 

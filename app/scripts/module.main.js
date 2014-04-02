@@ -1,13 +1,17 @@
 (function () {
-    var app = angular.module("demo.app", ["demo.model", "demo.simulator"]);
-    app.controller("demo.controller", function ($scope, model) {
-        $scope.model = model;
+    var app = angular.module("demo.app", ["demo.model", "demo.simulator", "progress.model"]);
+    app.controller("demo.controller", function ($scope, demoModel) {
+        $scope.model = demoModel;
 
         $scope.simulate = function () {
-            model.simulate();
+            demoModel.simulate();
         };
 
-        model.simulate();
+        demoModel.simulate();
+    });
+
+    app.controller("progress.controller", function ($scope, progressModel) {
+        $scope.model = progressModel;
     });
 
     app.directive("between", function () {
@@ -60,8 +64,7 @@
         };
     });
 
-    var model = angular.module("demo.model", ["demo.renderer"]);
-    model.factory("model", function (renderer, newSimulator) {
+    angular.module("demo.model", ["ui.bootstrap", "demo.renderer", "progress.model"]).factory("demoModel", function ($modal, renderer, newSimulator, progressModel) {
         var returnObj = {
             result: {
                 selectedChart: "cumulativeReward",
@@ -89,6 +92,13 @@
             },
 
             simulate: function () {
+                var modal = $modal.open({
+                    templateUrl: 'calculating.html',
+                    controller: 'progress.controller',
+                    backdrop: 'static',
+                    keyboard: false
+                });
+
                 newSimulator(
                     2,
                     [
@@ -102,12 +112,28 @@
                     .softmaxWithAnneal()
                     .ucb1()
                     .thompsonSampling()
-                    .simulate(function (result) {
+                    .simulate(function (value, totalValue) {
+                        progressModel.progress.value = value;
+                        progressModel.progress.totalValue = totalValue;
+                        progressModel.progress.percentage = 100 * value / totalValue;
+
+                    }, function (result) {
+                        modal.close();
                         renderer.render(result, returnObj);
                     });
             }
         };
 
         return returnObj;
+    });
+
+    angular.module("progress.model", []).factory("progressModel", function () {
+        return {
+            progress: {
+                value: "-",
+                totalValue: "-",
+                percentage: 0
+            }
+        };
     });
 })();

@@ -61,7 +61,7 @@
                     return this;
                 },
 
-                simulate: function (callback) {
+                simulate: function (progressCallback, resultCallback) {
                     var NUM_ITERATIONS_AT_A_TIMEOUT = 100;
 
                     var iterationCount = 0;
@@ -73,6 +73,7 @@
                         simulationResult.setLabel(algorithms[_i].name);
                     }
 
+                    var TIMEOUT_MILLIS = 50;
                     var iterateWithTimeout = function () {
                         var j, algorithm, arm, reward;
 
@@ -96,14 +97,18 @@
 
                         if (iterationCount < numIterations) {
                             nextLimit += NUM_ITERATIONS_AT_A_TIMEOUT;
-                            $timeout(iterateWithTimeout, 1, true);
+                            $timeout(iterateWithTimeout, TIMEOUT_MILLIS, true);
+                            progressCallback(iterationCount, numIterations);
 
                         } else {
-                            callback(simulationResult.getResult());
+                            progressCallback(iterationCount, numIterations);
+                            $timeout(function () {
+                                resultCallback(simulationResult.getResult());
+                            }, TIMEOUT_MILLIS, true);
                         }
                     };
 
-                    $timeout(iterateWithTimeout, 1, true);
+                    $timeout(iterateWithTimeout, TIMEOUT_MILLIS, true);
                 }
             };
         };
