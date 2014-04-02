@@ -84,7 +84,7 @@
                         { probability: 0.23 },
                         { probability: 0.18 }
                     ],
-                    numIteration: 1000
+                    numIterations: 1000
                 },
 
                 algorithms: {
@@ -106,7 +106,7 @@
                             returnObj.simulator.arms[0].probability,
                             returnObj.simulator.arms[1].probability
                         ],
-                        returnObj.simulator.numIteration)
+                        returnObj.simulator.numIterations)
                         .epsilonGreedy(returnObj.algorithms.epsilonGreedy.epsilon)
                         .epsilonGreedyWithAnneal()
                         .softmax(returnObj.algorithms.softmax.temperature)
