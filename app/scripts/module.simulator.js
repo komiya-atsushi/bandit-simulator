@@ -140,10 +140,10 @@
             add: function (label, iterationCount, totalReward) {
                 var algorithmIndex = indexOfLabel[label];
                 var sampleCount = result.cumulativeReward[algorithmIndex].values.length;
-                var nextSamplingPoint = (sampleCount + 1) / MAX_SAMPLING_COUNT;
+                var nextSamplingPoint = sampleCount / MAX_SAMPLING_COUNT;
                 var currentPoint = iterationCount / numIterations;
 
-                if (currentPoint >= nextSamplingPoint) {
+                if (iterationCount == 0 || currentPoint >= nextSamplingPoint) {
                     result.cumulativeReward[algorithmIndex].values.push([
                         iterationCount,
                         totalReward
