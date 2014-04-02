@@ -16,7 +16,8 @@
 
             chart.xAxis.axisLabel("# iterations");
             chart.yAxis
-                .axisLabelDistance(40);
+                .axisLabelDistance(40)
+                .tickFormat(d3.format('.03f'));
 
             return chart;
 
